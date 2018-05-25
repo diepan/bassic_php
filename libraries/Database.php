@@ -88,4 +88,25 @@ class Database {
         $this->pdo->prepare($sql)->execute();
         return true;
     }
+     /**
+     * add where clause for query
+     * @param string $strWhere
+     */
+    public function where($strWhere) {
+        $this->sql .= ' WHERE ' . $strWhere; 
+    }
+    /**
+     * execute query
+     */
+    public function execute() {
+        $this->pdo->prepare($this->sql)->execute();
+    }
+    /**
+     * Fetch all data 
+     * @return array
+     */
+    public function fetchAll() {
+        return $this->pdo->query($this->sql)->fetchAll();
+    }
+
 }
