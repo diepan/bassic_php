@@ -1,6 +1,7 @@
 <?php
 class Database {
     private $pdo;
+    private $sql;
     public function __construct($host, $db, $user, $password, $charset = 'utf8'){
         $this->connect($host, $db, $user, $password, $charset = 'utf8');
     }
@@ -27,14 +28,12 @@ class Database {
      * 
      * @param array $fields
      * @param string $table
-     * @return array
      */
     public function select(array $arrayfields, $table) {
         $fields = implode(',', $arrayfields);
-        $sql = "SELECT $fields FROM $table";
-        return $this->pdo->query($sql)->fetchAll();
+        $this->sql = "SELECT $fields FROM $table";
+        return $this;
     }
-    
     /**
      * insert record
      * @param array $arrayFieldValues
@@ -47,7 +46,7 @@ class Database {
      *        ]
      * ];
      * @param string $table
-     * @return boolean 
+     * @return self
      */
     public function insert(array $arrayFieldValues, $table) {
         
@@ -62,8 +61,8 @@ class Database {
         }
         $fieldVals = substr($fieldVals, 0, -1);
         $sql .= $fieldVals;
-        $this->pdo->prepare($sql)->execute();
-        return true;
+        $this->sql = $sql;
+        return $this;
     }
     /**
      * update one record on database
@@ -71,12 +70,10 @@ class Database {
      * @param string $field
      * @param mixed $value
      * @param string $table
-     * @return boolean
      */
     public function update($field, $value, $table) {
-        $sql = "UPDATE `$table` SET `$field` = ?";
-        $this->pdo->prepare($sql)->execute([$value]);
-        return true;
+        $this->sql = "UPDATE `$table` SET `$field` = $value";
+        return $this;
     }
     /**
      * delete a record
@@ -84,16 +81,16 @@ class Database {
      * @return boolean
      */
     public function delete($table) {
-        $sql = "DELETE FROM $table";
-        $this->pdo->prepare($sql)->execute();
-        return true;
+        $this->sql = "DELETE FROM $table";
+        return $this;
     }
-     /**
+    /**
      * add where clause for query
      * @param string $strWhere
      */
     public function where($strWhere) {
-        $this->sql .= ' WHERE ' . $strWhere; 
+        $this->sql .= ' WHERE ' . $strWhere;
+        return $this;
     }
     /**
      * execute query
@@ -108,5 +105,4 @@ class Database {
     public function fetchAll() {
         return $this->pdo->query($this->sql)->fetchAll();
     }
-
 }
